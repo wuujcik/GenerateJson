@@ -22,7 +22,6 @@ class GenJsonProcessor : AbstractProcessor() {
     ): Boolean {
         roundEnv?.getElementsAnnotatedWith(GenJson::class.java)?.let { element ->
             element.forEach {
-                println("Processing: ${it.simpleName}")
                 val pack = processingEnv.elementUtils.getPackageOf(it).toString()
                 generateClass(it, pack)
             }
@@ -31,7 +30,6 @@ class GenJsonProcessor : AbstractProcessor() {
     }
 
     override fun getSupportedAnnotationTypes(): MutableSet<String> {
-        println("getSupportedAnnotationTypes")
         return mutableSetOf(GenJson::class.java.name)
     }
 
@@ -46,11 +44,12 @@ class GenJsonProcessor : AbstractProcessor() {
         elementClass.enclosedElements.forEach { element ->
             when(element.kind) {
                 ElementKind.FIELD -> {
-                    body.add(""""$element": ${'$'}$element""")
+                    body.add(""""$element": "${'$'}$element"""")
                 }
                 else -> { }
             }
         }
+
         val bodyString = body.joinToString(", ")
         val statement = """return $tripleQuote{$bodyString}$tripleQuote"""
         val file = FileSpec.builder(pack, fileName)
